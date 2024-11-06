@@ -29,12 +29,12 @@ jobs:
       - name: Send email notification
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com  # Serveur SMTP pour Gmail
-          server_port: 587  # Port SMTP (587 pour TLS)
-          username: ${{ secrets.EMAIL_USERNAME }}  # Utilisateur SMTP
-          password: ${{ secrets.EMAIL_PASSWORD }}  # Mot de passe SMTP
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: 'Code Analysis Results'
           body: 'The code analysis has been completed. Please check the results in the Actions tab.'
           to: ${{ github.event.pusher.email }}  # Email de l'utilisateur qui a fait le push
-          from: 'fops415@gmail.com'  # Email de l'émetteur
-          secure: true
+          from: 'fops415@gmail.com'
+          secure: false  # Utilisez 'false' pour le port 587
