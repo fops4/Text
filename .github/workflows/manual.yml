@@ -1,49 +1,42 @@
-name: Push Notification with Code Analysis
+name: Notification Push avec Analyse de Code
 
 on: 
   push: 
     branches: 
-      - ''
+      - '*'
 
 jobs:
   analyze-and-notify:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Vérifier le code
         uses: actions/checkout@v2
 
-      - name: Get commit author email
+      - name: Obtenir l'email de l'auteur du commit
         id: get_email
         run: |
-          commitInfo=$(git log -1 --pretty=format:'%ae')
-          userEmail="$commitInfo"
-          if [[ ! "$userEmail" == "@gmail.com" ]]; then
-            username="${userEmail#*+}"
-            username="${username%@*}"
-            userEmail="$username@gmail.com"
+          userEmail=$(git log -1 --pretty=format:'%ae')
+          if [[ ! "$userEmail" == *@gmail.com ]]; then
+            userEmail="${userEmail%@*}@gmail.com"
           fi
           echo "userEmail=$userEmail" >> $GITHUB_ENV
 
-      - name: Analyze code with Gemini
+      - name: Analyser le code
         id: analyze_code
         run: |
-          echo "Analyzing code with Gemini..."
-          # Assume you have the gemini-sdk or equivalent installed
-          # For the sake of the example, let's assume your function is in a script called analyze.js
-          # The analyze function would be called with the relevant code, you may need to adjust accordingly
-          code=$(git diff HEAD^ HEAD) # Récupérer le code modifié
-          improved_code=$(node analyze.js "$code") # Appeler le script d'analyse
-          echo "improved_code=$improved_code" >> $GITHUB_ENV # Exporter le code amélioré
+          code=$(git diff HEAD^ HEAD)
+          improved_code=$(node analyze.js "$code") # Appeler votre script d'analyse
+          echo "improved_code=$improved_code" >> $GITHUB_ENV
 
-      - name: Send notification email
+      - name: Envoyer une notification par email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: 'Push Successful with Code Analysis'
-          body: 'Le push sur la branche ${{ github.ref }} a été effectué avec succès !\n\nSuggestions d\"amélioration du code:\n${{ env.improved_code }}'
+          subject: 'Push réussi avec analyse de code'
+          body: 'Le push sur la branche ${{ github.ref }} a été effectué avec succès !\n\nSuggestions d\'amélioration du code :\n${{ env.improved_code }}'
           to: ${{ env.userEmail }}
-          from: 'fops415@gmail.com' 
+          from: 'fops415@gmail.com' # Remplacez par votre adresse e-mail
