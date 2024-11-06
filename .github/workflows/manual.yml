@@ -22,12 +22,13 @@ jobs:
           fi
           echo "userEmail=$userEmail" >> $GITHUB_ENV
 
-      - name: Analyser le code
+      - name: Analyser le code avec Gemini
         id: analyze_code
         run: |
           if [ $(git rev-list --count HEAD) -gt 1 ]; then
               code=$(git diff HEAD~1 HEAD)
-              improved_code=$(node analyze.js "$code") # Appeler votre script d'analyse
+              # Appel à Gemini pour obtenir des suggestions
+              improved_code=$(node analyze.js "$code") # Assurez-vous que analyze.js utilise Gemini pour l'analyse
               echo "improved_code=$improved_code" >> $GITHUB_ENV
           else
               echo "Pas assez de commits pour analyser."
