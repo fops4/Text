@@ -1,40 +1,49 @@
-name: Code Analysis and Notification
+name: Push Notification with Code Analysis
 
-on:
-  push:
-    branches:
-      - '**'  # Match all branches 
+on: 
+  push: 
+    branches: 
+      - ''
 
 jobs:
-  analyze:
+  analyze-and-notify:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'  # Mettez à jour vers une version prise en charge
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run ESLint
+      - name: Get commit author email
+        id: get_email
         run: |
-          chmod +x ./node_modules/.bin/eslint  # Donner la permission d'exécution
-          npm run lint
+          commitInfo=$(git log -1 --pretty=format:'%ae')
+          userEmail="$commitInfo"
+          if [[ ! "$userEmail" == "@gmail.com" ]]; then
+            username="${userEmail#*+}"
+            username="${username%@*}"
+            userEmail="$username@gmail.com"
+          fi
+          echo "userEmail=$userEmail" >> $GITHUB_ENV
 
-      - name: Send email notification
+      - name: Analyze code with Gemini
+        id: analyze_code
+        run: |
+          echo "Analyzing code with Gemini..."
+          # Assume you have the gemini-sdk or equivalent installed
+          # For the sake of the example, let's assume your function is in a script called analyze.js
+          # The analyze function would be called with the relevant code, you may need to adjust accordingly
+          code=$(git diff HEAD^ HEAD) # Récupérer le code modifié
+          improved_code=$(node analyze.js "$code") # Appeler le script d'analyse
+          echo "improved_code=$improved_code" >> $GITHUB_ENV # Exporter le code amélioré
+
+      - name: Send notification email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: 'Code Analysis Results'
-          body: 'The code analysis has been completed. Please check the results in the Actions tab.'
-          to: ${{ github.event.pusher.email }}  # Email de l'utilisateur qui a fait le push
-          from: 'fops415@gmail.com'
-          secure: false  # Utilisez 'false' pour le port 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: 'Push Successful with Code Analysis'
+          body: 'Le push sur la branche ${{ github.ref }} a été effectué avec succès !\n\nSuggestions d\"amélioration du code:\n${{ env.improved_code }}'
+          to: ${{ env.userEmail }}
+          from: 'fops415@gmail.com' # Remplace par ton adresse e-mail
