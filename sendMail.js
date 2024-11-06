@@ -16,6 +16,7 @@ function getGithubUser() {
     }
 }
 
+
 // Créer une instance de Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -62,6 +63,9 @@ async function main() {
     await sendEmail(commitMessage, geminiSuggestions);
 }
 
+const emailUser = process.env.EMAIL_USER;
+const emailPass = process.env.EMAIL_PASS;
+
 // Fonction pour envoyer l'e-mail
 async function sendEmail(commitMessage, geminiSuggestions) {
     const user = getGithubUser();
@@ -70,8 +74,8 @@ async function sendEmail(commitMessage, geminiSuggestions) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'fops415@gmail.com',
-            pass: 'wzrq uhqj iekx irpn'
+            user: emailUser, // Utilisez le secret
+            pass: emailPass, // Utilisez le secret
         }
     });
 
