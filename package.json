@@ -7,6 +7,16 @@
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
     "globals": "^15.12.0"
+  },
+  "name": "text",
+  "version": "1.0.0",
+  "main": "analyze.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "nodemailer": "^6.9.16"
   }
 }
-
