@@ -104,5 +104,4 @@ async function sendEmail(commitMessage, geminiSuggestions) {
     }
 }
 
-// Exécuter le script principal
 main().catch(error => console.error('Erreur dans le script principal:', error));
