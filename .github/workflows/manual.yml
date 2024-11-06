@@ -46,4 +46,4 @@ jobs:
           subject: 'Push Successful with Code Analysis'
           body: 'Le push sur la branche ${{ github.ref }} a été effectué avec succès !\n\nSuggestions d\"amélioration du code:\n${{ env.improved_code }}'
           to: ${{ env.userEmail }}
-          from: 'fops415@gmail.com' # Remplace par ton adresse e-mail
+          from: 'fops415@gmail.com' 
