@@ -7,15 +7,14 @@ const { execSync } = require('child_process');
 // Fonction pour récupérer l'utilisateur GitHub
 function getGithubUser() {
     try {
-      const gitConfigUser = execSync('git config user.name').toString().trim();
-      const gitConfigEmail = execSync('git config user.email').toString().trim();
-      return { name: gitConfigUser, email: gitConfigEmail };
+        const gitConfigUser = execSync('git config user.name').toString().trim();
+        const gitConfigEmail = execSync('git config user.email').toString().trim();
+        return { name: gitConfigUser, email: gitConfigEmail };
     } catch (error) {
-      console.error('Erreur lors de la récupération des informations Git:', error);
-      return null;
+        console.error('Erreur lors de la récupération des informations Git:', error);
+        return null;
     }
 }
-
 
 // Créer une instance de Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -25,6 +24,11 @@ function getCommitDetails() {
     const commitMessage = execSync('git log -1 --pretty=format:"%s"').toString().trim();
     const author = execSync('git log -1 --pretty=format:"%an <%ae>"').toString().trim();
     return { commitMessage, author };
+}
+
+// Fonction pour récupérer le nombre de commits
+function getCommitCount() {
+    return parseInt(execSync('git rev-list --count HEAD').toString().trim(), 10);
 }
 
 // Fonction pour récupérer les modifications du dernier commit
@@ -45,6 +49,12 @@ async function analyzeCodeWithGemini(code) {
 
 // Fonction principale
 async function main() {
+    const commitCount = getCommitCount();
+    if (commitCount < 2) {
+        console.log('Pas assez de commits pour analyser.');
+        return;
+    }
+
     const { commitMessage, author } = getCommitDetails();
     const diff = getDiff();
 
@@ -74,14 +84,14 @@ async function sendEmail(commitMessage, geminiSuggestions) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: emailUser, // Utilisez le secret
-            pass: emailPass, // Utilisez le secret
+            user: emailUser,
+            pass: emailPass,
         }
     });
 
     const mailOptions = {
-        from: '"Notifier de Commit" <fops415@gmail.com>',
-        to: user.email, // Email de l'utilisateur GitHub
+        from: `"Notifier de Commit" <${emailUser}>`,
+        to: user.email,
         subject: 'Nouveau Commit effectué',
         text: `Bonjour ${user.name},\n\nVous avez effectué un nouveau commit :\n\n"${commitMessage}"\n\nMerci !\n\nComme suggestion :\n\n"${geminiSuggestions}"\n\n`,
     };
@@ -95,4 +105,4 @@ async function sendEmail(commitMessage, geminiSuggestions) {
 }
 
 // Exécuter le script principal
-main();
+main().catch(error => console.error('Erreur dans le script principal:', error));
