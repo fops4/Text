@@ -16,7 +16,7 @@ jobs:
       - name: Installer Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # ou la version de Node.js que vous utilisez
+          node-version: '18'
 
       - name: Installer les dépendances
         run: |
