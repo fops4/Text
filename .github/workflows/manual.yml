@@ -37,6 +37,9 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: 'Push réussi avec analyse de code'
-          body: 'Le push sur la branche ${{ github.ref }} a été effectué avec succès !\n\nSuggestions d\'amélioration du code :\n${{ env.improved_code }}'
+          body: |
+            Le push sur la branche ${{ github.ref }} a été effectué avec succès !
+            Suggestions d'amélioration du code :
+            ${{ env.improved_code }}
           to: ${{ env.userEmail }}
           from: 'fops415@gmail.com' # Remplacez par votre adresse e-mail
