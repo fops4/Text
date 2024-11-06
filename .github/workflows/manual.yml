@@ -25,9 +25,14 @@ jobs:
       - name: Analyser le code
         id: analyze_code
         run: |
-          code=$(git diff HEAD^ HEAD)
-          improved_code=$(node analyze.js "$code") # Appeler votre script d'analyse
-          echo "improved_code=$improved_code" >> $GITHUB_ENV
+          if [ $(git rev-list --count HEAD) -gt 1 ]; then
+              code=$(git diff HEAD~1 HEAD)
+              improved_code=$(node analyze.js "$code") # Appeler votre script d'analyse
+              echo "improved_code=$improved_code" >> $GITHUB_ENV
+          else
+              echo "Pas assez de commits pour analyser."
+              echo "improved_code=aucun changement" >> $GITHUB_ENV
+          fi
 
       - name: Envoyer une notification par email
         uses: dawidd6/action-send-mail@v3
